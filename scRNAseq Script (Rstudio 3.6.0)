@@ -1,44 +1,60 @@
-#CELL TYPE SPECIFIC GENES
-#----------------------------------------------
+#-------------------------------------------------------------
+#               CELL TYPE SPECIFIC GENES
+#-------------------------------------------------------------
 
+#--------------------------------------------------------
+# ----- Load packages usefull for this analysis -----
+#--------------------------------------------------------
 library(reshape2)
 library(ggplot2)
+library(ggpubr)
 
-#Import the data
+#--------------------------------------------------------
+# ----- Import the data -----
+#--------------------------------------------------------
 DATA <- read.csv("GSM3389578_tissue_LogNormalized.txt.gz",sep = "\t")
 
-#Separate each cell type
+
+#--------------------------------------------------------
+# ----- Separate and cluster each cell type in a specific dataframe -----
+#--------------------------------------------------------
+
+# --- Cluster Enterocytes and Enterocytes progenitors late in the vector EC ---
 EC <- DATA[,grepl("Enterocyte",names(DATA))]
-EC <- EC[,!grepl("Enterocyte.Progenitor.Early",names(EC))]
+EC <- EC[,!grepl("Enterocyte.Progenitor.Early",names(EC))] #We want all the "Enterocytes" except those called "Early"
 colnames(EC) <- c(paste("EC",seq(1:ncol(EC))))
 
+# --- Cluster Stem Cells in the vector SC ---
 SC <- DATA[,grepl("Stem",names(DATA))]
 colnames(SC) <- c(paste("SC",seq(1:ncol(SC))))
 
-
+# --- Cluster Transient Amplifying Cells and Enterocytes progenitors early in the vector TA ---
 TA1 <- DATA[,grepl("TA",names(DATA))]
-TA2 <- DATA[,grepl("Enterocyte.Progenitor.Early",names(DATA))]
+TA2 <- DATA[,grepl("Enterocyte.Progenitor.Early",names(DATA))] #We want to add also the enterocytes called "Early"
 TA <- cbind.data.frame(TA1,TA2)
 colnames(TA) <- c(paste("TA",seq(1:ncol(TrAm))))
 
+# --- Cluster Goblet Cells in the vector GB ---
 GB <- DATA[,grepl("Goblet",names(DATA))]
 colnames(GB) <- c(paste("GB",seq(1:ncol(GB))))
 
+# --- Cluster Enteroendocrine Cells in the vector EE ---
 EE <- DATA[,grepl("Endocrine",names(DATA))]
 colnames(EE) <- c(paste("EE",seq(1:ncol(EE))))
 
+# --- Cluster Tuft Cells in the vector TFT ---
 TFT <- DATA[,grepl("Tuft",names(DATA))]
 colnames(TFT) <- c(paste("TFT",seq(1:ncol(TFT))))
 
+# --- Cluster Paneth Cells in the vector PNT ---
 PNT <- DATA[,grepl("Paneth",names(DATA))]
 colnames(PNT) <- c(paste("PNT",seq(1:ncol(PNT))))
 
+#--------------------------------------------------------
+# ----- Calculation of the correlation coefficient for each cell type -----
+#--------------------------------------------------------
 
-#--------------------
-#Correlation
-#--------------------
-
-#Calculate the correlation
+# --- Calculate the correlation ---
 ECCor <- cor(EC)
 EECor <- cor(EE)
 PNTCor <- cor(PNT)
@@ -47,9 +63,11 @@ SCCor <- cor(SC)
 GBCor <- cor(GB)
 TFTCor <- cor(TFT)
 
-#Create plots for each cell type
-#EC
+#--------------------------------------------------------
+# ----- Create plot for each cell type -----
+#--------------------------------------------------------
 
+# --- Enterocytes ---
 ECCor <- cor(EC)
 meltedECCor <- melt(ECCor)
 colnames(meltedECCor)[3] <- "Pearson Correlation"
@@ -64,12 +82,10 @@ ECcorplot <- ggplot(data = meltedECCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Enterocytes")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("ECCor.png",ECcorplot, width = 8, height = 5)
 
 
-#EE
-
+# --- Enteroendocrine Cells ---
 EECor <- cor(EE)
 meltedEECor <- melt(EECor)
 colnames(meltedEECor)[3] <- "Pearson Correlation"
@@ -84,11 +100,10 @@ EEcorplot <- ggplot(data = meltedEECor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Endocrine Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("EECor.png",EEcorplot, width = 8, height = 5)
 
-#PANETH
 
+# --- Paneth Cells ---
 PNTCor <- cor(PNT)
 meltedPNTCor <- melt(PNTCor)
 colnames(meltedPNTCor)[3] <- "Pearson Correlation"
@@ -103,12 +118,10 @@ PNTcorplot <- ggplot(data = meltedPNTCor, aes(x=Var1, y=Var2, fill=`Pearson Corr
   ggtitle("Paneth Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("PNTCor.png",PNTcorplot, width = 8, height = 5)
 
 
-#Transient Amplifying Cells
-
+# --- Transient Amplifying Cells ---
 TACor <- cor(TA)
 meltedTACor <- melt(TACor)
 colnames(meltedTACor)[3] <- "Pearson Correlation"
@@ -125,8 +138,8 @@ TAcorplot <- ggplot(data = meltedTACor, aes(x=Var1, y=Var2, fill=`Pearson Correl
 
 ggsave("TACor.png",TAcorplot, width = 8, height = 5)
 
-# Stem
 
+# --- Stem Cells ---
 SCCor <- cor(SC)
 meltedSCCor <- melt(SCCor)
 colnames(meltedSCCor)[3] <- "Pearson Correlation"
@@ -141,11 +154,10 @@ SCcorplot <- ggplot(data = meltedSCCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Transient Amplifying Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("SCCor.png",SCcorplot, width = 8, height = 5)
 
 
-#Gobelet
+# --- Goblet Cells ---
 GBCor <- cor(GB)
 meltedGBCor <- melt(GBCor)
 colnames(meltedGBCor)[3] <- "Pearson Correlation"
@@ -160,12 +172,10 @@ GBcorplot <- ggplot(data = meltedGBCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Goblet Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("GBLCor.png",GBcorplot, width = 8, height = 5)
 
 
-#Tuft
-
+# --- Tuft Cells ---
 TFTCor <- cor(TFT)
 meltedTFTCor <- melt(TFTCor)
 colnames(meltedTFTCor)[3] <- "Pearson Correlation"
@@ -180,16 +190,14 @@ TFcorplot <- ggplot(data = meltedTFTCor, aes(x=Var1, y=Var2, fill=`Pearson Corre
   ggtitle("Tuft Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("TFCor.png",TFcorplot, width = 8, height = 5)
 
 
-#---------------------------
-#Subsetting 
-#---------------------------
+#--------------------------------------------------------
+# ----- Subsetting cells that do not have the same expression profile as others in each cell type -----
+#--------------------------------------------------------
 
-#Keep only the cells with a mean correlation above 0.60
-
+# --- Keep only the cells with a mean correlation above 0.60 ---
 ECcorMean <- t(as.data.frame(apply(ECCor,2,mean)))
 EC_Sbst <- EC[,which(ECcorMean>0.60)]
 
@@ -214,12 +222,13 @@ TA_Sbst <- TA[,which(TAcorMean>0.60)]
 TFTcorMean <- t(as.data.frame(apply(TFTCor,2,mean)))
 TFT_Sbst <- TFT[,which(TFTcorMean>0.60)]
 
-#---------------------
-# Correlation after
-#---------------------
 
-#Make plots after subsetting
-ECCor <- cor(EC_Sbst)
+#--------------------------------------------------------
+# ----- Calculating the correlation coefficient and creating graphs after the deletion -----
+#--------------------------------------------------------
+
+# --- Enterocytes ---
+ECCor <- cor(EC_Sbst) #Calculating the correlation again but without the cells deleted
 meltedECCor <- melt(ECCor)
 colnames(meltedECCor)[3] <- "Pearson Correlation"
 
@@ -233,12 +242,11 @@ ECcorplot <- ggplot(data = meltedECCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Enterocytes")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("ECCor_After.png",ECcorplot, width = 8, height = 5)
 
 
-#EE
-EECor <- cor(EE_Sbst)
+# --- Enteroendocrine cells ---
+EECor <- cor(EE_Sbst) #Calculating the correlation again but without the cells deleted
 meltedEECor <- melt(EECor)
 colnames(meltedEECor)[3] <- "Pearson Correlation"
 
@@ -252,11 +260,11 @@ EEcorplot <- ggplot(data = meltedEECor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Endocrine Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("EECor_After.png",EEcorplot, width = 8, height = 5)
 
-#PANETH
-PNTCor <- cor(PNT_Sbst)
+
+# --- Paneth Cells ---
+PNTCor <- cor(PNT_Sbst) #Calculating the correlation again but without the cells deleted
 meltedPNTCor <- melt(PNTCor)
 colnames(meltedPNTCor)[3] <- "Pearson Correlation"
 
@@ -270,12 +278,11 @@ PNTcorplot <- ggplot(data = meltedPNTCor, aes(x=Var1, y=Var2, fill=`Pearson Corr
   ggtitle("Paneth Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("PNTCor_after.png",PNTcorplot, width = 8, height = 5)
 
 
-#Transient Amplifying Cells
-TACor <- cor(TA_Sbst)
+# --- Transient Amplifying Cells ---
+TACor <- cor(TA_Sbst) #Calculating the correlation again but without the cells deleted
 meltedTACor <- melt(TACor)
 colnames(meltedTACor)[3] <- "Pearson Correlation"
 
@@ -291,8 +298,9 @@ TAcorplot <- ggplot(data = meltedTACor, aes(x=Var1, y=Var2, fill=`Pearson Correl
 
 ggsave("TACor_After.png",TAcorplot, width = 8, height = 5)
 
-# Stem
-SCCor <- cor(SC_Sbst)
+
+# --- Stem Cells ---
+SCCor <- cor(SC_Sbst) #Calculating the correlation again but without the cells deleted
 meltedSCCor <- melt(SCCor)
 colnames(meltedSCCor)[3] <- "Pearson Correlation"
 
@@ -306,12 +314,11 @@ SCcorplot <- ggplot(data = meltedSCCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Transient Amplifying Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("SCCor_After.png",SCcorplot, width = 8, height = 5)
 
 
-#Gobelet
-GBCor <- cor(GB_Sbst)
+# --- Goblet Cells ---
+GBCor <- cor(GB_Sbst) #Calculating the correlation again but without the cells deleted
 meltedGBCor <- melt(GBCor)
 colnames(meltedGBCor)[3] <- "Pearson Correlation"
 
@@ -325,12 +332,11 @@ GBcorplot <- ggplot(data = meltedGBCor, aes(x=Var1, y=Var2, fill=`Pearson Correl
   ggtitle("Goblet Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("GBLCor_After.png",GBcorplot, width = 8, height = 5)
 
 
-#Tuft
-TFTCor <- cor(TFT_Sbst)
+# --- Tuft Cells ---
+TFTCor <- cor(TFT_Sbst) #Calculating the correlation again but without the cells deleted
 meltedTFTCor <- melt(TFTCor)
 colnames(meltedTFTCor)[3] <- "Pearson Correlation"
 
@@ -344,10 +350,10 @@ TFcorplot <- ggplot(data = meltedTFTCor, aes(x=Var1, y=Var2, fill=`Pearson Corre
   ggtitle("Tuft Cells")+
   scale_fill_continuous(low="white", high="steelblue3",limits=c(0,1))
 
-
 ggsave("TFCor_After.png",TFcorplot, width = 8, height = 5)
 
 
+# --- Renaming the columns of each dataset with the name of the cell type ---
 colnames(EC_Sbst) <- rep("Enterocytes", ncol(EC_Sbst))
 colnames(EE_Sbst) <- rep("Endocrine Cells", ncol(EE_Sbst))
 colnames(GB_Sbst) <- rep("Goblet Cells", ncol(GB_Sbst))
@@ -356,17 +362,19 @@ colnames(SC_Sbst) <- rep("Stem Cells", ncol(SC_Sbst))
 colnames(TA_Sbst) <- rep("Transient Amplifying Cells", ncol(TA_Sbst))
 colnames(TFT_Sbst) <- rep("Tuft Cells", ncol(TFT_Sbst))
 
+# --- Clustering all the cell types in one dataframe
 DATASbst <- cbind.data.frame(EC_Sbst, EE_Sbst, PNT_Sbst, TA_Sbst, SC_Sbst, GB_Sbst, TFT_Sbst)
-DATASbst <- DATASbst+1
-DATAsbstlog <- log2(DATASbst)
+
+# --- Preparing data for statistics. 
+DATASbst <- DATASbst+1 #Adding 1 to be able to log-transform all the data
+DATAsbstlog <- log2(DATASbst) #Log-transform the data to perform a log-fold change analysis
 
 
+#--------------------------------------------------------
+# ----- STATISTICS -----
+#--------------------------------------------------------
 
-#----------------
-#STATISTICS
-#----------------
-
-#1 is added in order to be able to apply a log transformation
+# --- Adding 1 to each cell type dataframe to be able to apply a log transformation ---
 EC_mean <- EC_Sbst+1
 EE_mean <- EE_Sbst+1
 SC_mean <- SC_Sbst+1
@@ -375,7 +383,7 @@ PNT_mean <- PNT_Sbst+1
 GB_mean <- GB_Sbst+1
 TFT_mean <- TFT_Sbst+1
 
-#Calculate the mean expression of each gene in each cell type
+# --- Calculate the mean expression of each gene in each cell type ---
 EC_mean <- data.frame(apply(EC_mean, 1, mean))
 EE_mean <- data.frame(apply(EE_mean, 1, mean))
 PNT_mean <- data.frame(apply(PNT_mean,1, mean))
@@ -386,7 +394,7 @@ TFT_mean <- data.frame(apply(TFT_mean,1, mean))
 All_mean <- cbind.data.frame(EC_mean, EE_mean, PNT_mean, TA_mean, SC_mean, GB_mean, TFT_mean)
 
 
-#Create function to make boxplots with mean and no median
+# --- Create function to make boxplots with mean and not median ---
 min.mean.sd.max <- function(x) {
   v <- ifelse (mean(x)-sd(x)<0, 0, mean(x) - sd(x))
   r <- c(min(x), v, mean(x), mean(x) + sd(x), max(x))
@@ -394,6 +402,7 @@ min.mean.sd.max <- function(x) {
   r
 }
 
+# --- Create function to disable the display of quartile under 0 ---
 min.med.qt.max <- function(x) {
   Q1 <- median(x)-median(x)/2
   Q3 <- median(x)+median(x)/2
@@ -404,14 +413,15 @@ min.med.qt.max <- function(x) {
 }
 
 
-#Find cell type specific genes for each gene and create a plot
+#--------------------------------------------------------
+# ----- CELL TYPE SPECIFIC GENES -----
+#--------------------------------------------------------
+
 #---------------------------------------
-#EC cell type specific Genes
+# EC cell type specific Genes
 #--------------------------------------
 
-
-#----- EC Fold Change Computing -----
-
+#----- Merging dataframe of mean expression of EC with all the other cell types -----
 FC_ECEE <- cbind.data.frame(EC_mean, EE_mean)
 FC_ECPNT <- cbind.data.frame(EC_mean, PNT_mean)
 FC_ECTA<- cbind.data.frame(EC_mean, TA_mean)
@@ -419,6 +429,8 @@ FC_ECSC <- cbind.data.frame(EC_mean, SC_mean)
 FC_ECGB <- cbind.data.frame(EC_mean, GB_mean)
 FC_ECTFT <- cbind.data.frame(EC_mean, TFT_mean)
 
+
+#----- Calculate the fold change betweet Enterocytes and all the other cell types -----
 FC_ECEE <- transform(FC_ECEE, FoldChange=FC_ECEE[,1]/FC_ECEE[,2])
 FC_ECPNT <- transform(FC_ECPNT, FoldChange=FC_ECPNT[,1]/FC_ECPNT[,2])
 FC_ECTA <- transform(FC_ECTA, FoldChange=FC_ECTA[,1]/FC_ECTA[,2])
@@ -426,6 +438,8 @@ FC_ECSC <- transform(FC_ECSC, FoldChange=FC_ECSC[,1]/FC_ECSC[,2])
 FC_ECGB <- transform(FC_ECGB, FoldChange=FC_ECGB[,1]/FC_ECGB[,2])
 FC_ECTFT <- transform(FC_ECTFT, FoldChange=FC_ECTFT[,1]/FC_ECTFT[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_ECEE$FoldChange <- log2(FC_ECEE$FoldChange)
 FC_ECPNT$FoldChange <- log2(FC_ECPNT$FoldChange)
 FC_ECTA$FoldChange <- log2(FC_ECTA$FoldChange)
@@ -434,9 +448,7 @@ FC_ECGB$FoldChange <- log2(FC_ECGB$FoldChange)
 FC_ECTFT$FoldChange <- log2(FC_ECTFT$FoldChange)
 
 
-
-#----- EC Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the enterocytess -----
 FC_ECEE <- rownames(head(FC_ECEE[order(FC_ECEE$FoldChange, decreasing = TRUE),],300))
 FC_ECPNT <- rownames(head(FC_ECPNT[order(FC_ECPNT$FoldChange, decreasing = TRUE),],300))
 FC_ECTA <- rownames(head(FC_ECTA[order(FC_ECTA$FoldChange, decreasing = TRUE),],300))
@@ -444,6 +456,8 @@ FC_ECSC <- rownames(head(FC_ECSC[order(FC_ECSC$FoldChange, decreasing = TRUE),],
 FC_ECGB <- rownames(head(FC_ECGB[order(FC_ECGB$FoldChange, decreasing = TRUE),],300))
 FC_ECTFT <- rownames(head(FC_ECTFT[order(FC_ECTFT$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 ECgene <- intersect(FC_ECEE, FC_ECGB)
 ECgene <- intersect(ECgene, FC_ECPNT)
 ECgene <- intersect(ECgene, FC_ECTA)
@@ -452,9 +466,7 @@ ECgene <- intersect(ECgene, FC_ECGB)
 ECgene <- intersect(ECgene, FC_ECTFT)
 
 
-
-#----- EC Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellEC <- DATASbst[paste(ECgene),]
 
 CompECmean <- All_mean[,-1]
@@ -487,8 +499,7 @@ CellEC$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                     rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- EC CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -499,19 +510,20 @@ AH <- data.frame(NULL)
 
 for (i in rownames(head(CompECmean, 10))){
   AA <- CellEC[which(CellEC$Gene==i),]
-  AB <- rbind(AB, mean(AA[which(AA$variable=="EC"),3]))
-  AC <- rbind(AC, mean(AA[which(AA$variable=="EE"),3]))
-  AD <- rbind(AD, mean(AA[which(AA$variable=="PNT"),3]))
-  AE <- rbind(AE, mean(AA[which(AA$variable=="TA"),3]))
-  AF <- rbind(AF, mean(AA[which(AA$variable=="SC"),3]))
-  AG <- rbind(AG, mean(AA[which(AA$variable=="GB"),3]))
-  AH <- rbind(AH, mean(AA[which(AA$variable=="TFT"),3]))
+  AB <- rbind(AB, mean(AA[which(AA$variable=="EC"),3])) #Extract the gene mean expression in Enterocytes
+  AC <- rbind(AC, mean(AA[which(AA$variable=="EE"),3])) #Extract the gene mean expression in Enteroendocrine Cells
+  AD <- rbind(AD, mean(AA[which(AA$variable=="PNT"),3])) #Extract the gene mean expression in Paneth Cells
+  AE <- rbind(AE, mean(AA[which(AA$variable=="TA"),3])) #Extract the gene mean expression in Transient Amplifying Cells
+  AF <- rbind(AF, mean(AA[which(AA$variable=="SC"),3])) #Extract the gene mean expression in Stem Cells
+  AG <- rbind(AG, mean(AA[which(AA$variable=="GB"),3])) #Extract the gene mean expression in Goblet Cells
+  AH <- rbind(AH, mean(AA[which(AA$variable=="TFT"),3])) #Extract the gene mean expression in Tuft Cells
 }
 ECgenemean <- cbind.data.frame(rownames(head(CompECmean, 10)),AB, AC, AD, AE, AF, AG, AH)
 colnames(ECgenemean) <- c("Gene","EC","EE","PNT","TA","SC","GB","TFT")
-write.csv(ECgenemean, file = "ECmeans.csv")
+write.csv(ECgenemean, file = "ECmeans.csv") #Save in a .csv file
 
 
+#----- Extract the median value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -519,7 +531,6 @@ AE <- data.frame(NULL)
 AF <- data.frame(NULL)
 AG <- data.frame(NULL)
 AH <- data.frame(NULL)
-
 
 for (i in rownames(head(CompECmean, 10))){
   AA <- CellEC[which(CellEC$Gene==i),]
@@ -537,7 +548,7 @@ write.csv(ECgenemedian, file = "ECmedian.csv")
 
 
 
-#----- EC PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellEC$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                     rep("Endocrine Cells", ncol(EE_Sbst)*10),
                     rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -593,7 +604,6 @@ EC10med <- ggplot(CellEC)+
 print(EC10med)
 dev.off()
 
-library(ggpubr)
 png("EC10.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(EC10mean, EC10med, ncol = 2)
 dev.off()
@@ -603,10 +613,7 @@ dev.off()
 #EE cell type specific Genes
 #--------------------------------------
 
-
-
-#----- EE Fold Change Computing -----
-
+#----- Merging dataframe of mean expression of EE with all the other cell types -----
 FC_EEEC <- cbind.data.frame(EE_mean, EC_mean)
 FC_EEPNT <- cbind.data.frame(EE_mean, PNT_mean)
 FC_EETA<- cbind.data.frame(EE_mean, TA_mean)
@@ -614,6 +621,8 @@ FC_EESC <- cbind.data.frame(EE_mean, SC_mean)
 FC_EEGB <- cbind.data.frame(EE_mean, GB_mean)
 FC_EETFT <- cbind.data.frame(EE_mean, TFT_mean)
 
+
+#----- Calculate the fold change between Enteroendocrine cells and all the other cell types -----
 FC_EEEC <- transform(FC_EEEC, FoldChange=FC_EEEC[,1]/FC_EEEC[,2])
 FC_EEPNT <- transform(FC_EEPNT, FoldChange=FC_EEPNT[,1]/FC_EEPNT[,2])
 FC_EETA <- transform(FC_EETA, FoldChange=FC_EETA[,1]/FC_EETA[,2])
@@ -621,6 +630,8 @@ FC_EESC <- transform(FC_EESC, FoldChange=FC_EESC[,1]/FC_EESC[,2])
 FC_EEGB <- transform(FC_EEGB, FoldChange=FC_EEGB[,1]/FC_EEGB[,2])
 FC_EETFT <- transform(FC_EETFT, FoldChange=FC_EETFT[,1]/FC_EETFT[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_EEEC$FoldChange <- log2(FC_EEEC$FoldChange)
 FC_EEPNT$FoldChange <- log2(FC_EEPNT$FoldChange)
 FC_EETA$FoldChange <- log2(FC_EETA$FoldChange)
@@ -629,9 +640,7 @@ FC_EEGB$FoldChange <- log2(FC_EEGB$FoldChange)
 FC_EETFT$FoldChange <- log2(FC_EETFT$FoldChange)
 
 
-
-#----- EE Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the Enteroendocrine cells -----
 FC_EEEC <- rownames(head(FC_EEEC[order(FC_EEEC$FoldChange, decreasing = TRUE),],300))
 FC_EEPNT <- rownames(head(FC_EEPNT[order(FC_EEPNT$FoldChange, decreasing = TRUE),],300))
 FC_EETA <- rownames(head(FC_EETA[order(FC_EETA$FoldChange, decreasing = TRUE),],300))
@@ -639,6 +648,8 @@ FC_EESC <- rownames(head(FC_EESC[order(FC_EESC$FoldChange, decreasing = TRUE),],
 FC_EEGB <- rownames(head(FC_EEGB[order(FC_EEGB$FoldChange, decreasing = TRUE),],300))
 FC_EETFT <- rownames(head(FC_EETFT[order(FC_EETFT$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 EEgene <- intersect(FC_EEEC, FC_EEGB)
 EEgene <- intersect(EEgene, FC_EEPNT)
 EEgene <- intersect(EEgene, FC_EETA)
@@ -646,9 +657,7 @@ EEgene <- intersect(EEgene, FC_EESC)
 EEgene <- intersect(EEgene, FC_EETFT)
 
 
-
-#----- EE Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellEE <- DATASbst[paste(EEgene),]
 
 CompEEmean <- All_mean[,-2]
@@ -681,8 +690,7 @@ CellEE$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                     rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- EE CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -730,8 +738,7 @@ colnames(EEgenemedian) <- c("Gene","EC","EE","PNT","TA","SC","GB","TFT")
 write.csv(EEgenemedian, file = "EEmedian.csv")
 
 
-
-#----- EE PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellEE$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                     rep("Endocrine Cells", ncol(EE_Sbst)*10),
                     rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -787,7 +794,6 @@ EE10med <- ggplot(CellEE)+
 print(EE10med)
 dev.off()
 
-library(ggpubr)
 png("EE.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(EE10mean, EE10med, ncol = 2)
 dev.off()
@@ -795,13 +801,11 @@ dev.off()
 
 
 #---------------------------------------
-#PNT cell type specific Genes
+#Paneth Cells cell type specific Genes
 #--------------------------------------
 
 
-
-#----- PNT Fold Change Computing -----
-
+#----- Merging dataframe of mean expression of PNT with all the other cell types -----
 FC_PNTEC <- cbind.data.frame(PNT_mean, EC_mean)
 FC_PNTEE <- cbind.data.frame(PNT_mean, EE_mean)
 FC_PNTTA<- cbind.data.frame(PNT_mean, TA_mean)
@@ -809,6 +813,8 @@ FC_PNTSC <- cbind.data.frame(PNT_mean, SC_mean)
 FC_PNTGB <- cbind.data.frame(PNT_mean, GB_mean)
 FC_PNTTFT <- cbind.data.frame(PNT_mean, TFT_mean)
 
+
+#----- Calculate the fold change between Paneth cells and all the other cell types -----
 FC_PNTEC <- transform(FC_PNTEC, FoldChange=FC_PNTEC[,1]/FC_PNTEC[,2])
 FC_PNTEE <- transform(FC_PNTEE, FoldChange=FC_PNTEE[,1]/FC_PNTEE[,2])
 FC_PNTTA <- transform(FC_PNTTA, FoldChange=FC_PNTTA[,1]/FC_PNTTA[,2])
@@ -816,6 +822,8 @@ FC_PNTSC <- transform(FC_PNTSC, FoldChange=FC_PNTSC[,1]/FC_PNTSC[,2])
 FC_PNTGB <- transform(FC_PNTGB, FoldChange=FC_PNTGB[,1]/FC_PNTGB[,2])
 FC_PNTTFT <- transform(FC_PNTTFT, FoldChange=FC_PNTTFT[,1]/FC_PNTTFT[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_PNTEC$FoldChange <- log2(FC_PNTEC$FoldChange)
 FC_PNTEE$FoldChange <- log2(FC_PNTEE$FoldChange)
 FC_PNTTA$FoldChange <- log2(FC_PNTTA$FoldChange)
@@ -824,9 +832,7 @@ FC_PNTGB$FoldChange <- log2(FC_PNTGB$FoldChange)
 FC_PNTTFT$FoldChange <- log2(FC_PNTTFT$FoldChange)
 
 
-
-#----- PNT Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the Paneth -----
 FC_PNTEC <- rownames(head(FC_PNTEC[order(FC_PNTEC$FoldChange, decreasing = TRUE),],300))
 FC_PNTEE <- rownames(head(FC_PNTEE[order(FC_PNTEE$FoldChange, decreasing = TRUE),],300))
 FC_PNTTA <- rownames(head(FC_PNTTA[order(FC_PNTTA$FoldChange, decreasing = TRUE),],300))
@@ -834,6 +840,8 @@ FC_PNTSC <- rownames(head(FC_PNTSC[order(FC_PNTSC$FoldChange, decreasing = TRUE)
 FC_PNTGB <- rownames(head(FC_PNTGB[order(FC_PNTGB$FoldChange, decreasing = TRUE),],300))
 FC_PNTTFT <- rownames(head(FC_PNTTFT[order(FC_PNTTFT$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 PNTgene <- intersect(FC_PNTEC, FC_PNTGB)
 PNTgene <- intersect(PNTgene, FC_PNTEE)
 PNTgene <- intersect(PNTgene, FC_PNTTA)
@@ -841,9 +849,7 @@ PNTgene <- intersect(PNTgene, FC_PNTSC)
 PNTgene <- intersect(PNTgene, FC_PNTTFT)
 
 
-
-#----- PNT Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellPNT <- DATASbst[paste(PNTgene),]
 
 CompPNTmean <- All_mean[,-3]
@@ -876,8 +882,7 @@ CellPNT$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                      rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- PNT CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -925,8 +930,7 @@ colnames(PNTgenemedian) <- c("Gene","EC","EE","PNT","TA","SC","GB","TFT")
 write.csv(PNTgenemedian, file = "PNTmedian.csv")
 
 
-
-#----- PNT PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellPNT$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                      rep("Endocrine Cells", ncol(EE_Sbst)*10),
                      rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -982,7 +986,6 @@ PNT10med <- ggplot(CellPNT)+
 print(PNT10med)
 dev.off()
 
-library(ggpubr)
 png("PNT.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(PNT10mean, PNT10med, ncol = 2)
 dev.off()
@@ -990,15 +993,12 @@ dev.off()
 
 
 
-
 #---------------------------------------
-#SC cell type specific Genes
+#Stem Cells cell type specific Genes
 #--------------------------------------
 
 
-
-#----- SC Fold Change Computing -----
-
+#----- Merging dataframe of mean expression of SC with all the other cell types -----
 FC_SCEC <- cbind.data.frame(SC_mean, EC_mean)
 FC_SCEE <- cbind.data.frame(SC_mean, EE_mean)
 FC_SCTA<- cbind.data.frame(SC_mean, TA_mean)
@@ -1006,6 +1006,8 @@ FC_SCPNT <- cbind.data.frame(SC_mean, PNT_mean)
 FC_SCGB <- cbind.data.frame(SC_mean, GB_mean)
 FC_SCTFT <- cbind.data.frame(SC_mean, TFT_mean)
 
+
+#----- Calculate the fold change between Stem cells and all the other cell types -----
 FC_SCEC <- transform(FC_SCEC, FoldChange=FC_SCEC[,1]/FC_SCEC[,2])
 FC_SCEE <- transform(FC_SCEE, FoldChange=FC_SCEE[,1]/FC_SCEE[,2])
 FC_SCTA <- transform(FC_SCTA, FoldChange=FC_SCTA[,1]/FC_SCTA[,2])
@@ -1013,6 +1015,8 @@ FC_SCPNT <- transform(FC_SCPNT, FoldChange=FC_SCPNT[,1]/FC_SCPNT[,2])
 FC_SCGB <- transform(FC_SCGB, FoldChange=FC_SCGB[,1]/FC_SCGB[,2])
 FC_SCTFT <- transform(FC_SCTFT, FoldChange=FC_SCTFT[,1]/FC_SCTFT[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_SCEC$FoldChange <- log2(FC_SCEC$FoldChange)
 FC_SCEE$FoldChange <- log2(FC_SCEE$FoldChange)
 FC_SCTA$FoldChange <- log2(FC_SCTA$FoldChange)
@@ -1021,9 +1025,7 @@ FC_SCGB$FoldChange <- log2(FC_SCGB$FoldChange)
 FC_SCTFT$FoldChange <- log2(FC_SCTFT$FoldChange)
 
 
-
-#----- SC Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the Stem cells -----
 FC_SCEC <- rownames(head(FC_SCEC[order(FC_SCEC$FoldChange, decreasing = TRUE),],300))
 FC_SCEE <- rownames(head(FC_SCEE[order(FC_SCEE$FoldChange, decreasing = TRUE),],300))
 FC_SCTA <- rownames(head(FC_SCTA[order(FC_SCTA$FoldChange, decreasing = TRUE),],300))
@@ -1031,6 +1033,8 @@ FC_SCPNT <- rownames(head(FC_SCPNT[order(FC_SCPNT$FoldChange, decreasing = TRUE)
 FC_SCGB <- rownames(head(FC_SCGB[order(FC_SCGB$FoldChange, decreasing = TRUE),],300))
 FC_SCTFT <- rownames(head(FC_SCTFT[order(FC_SCTFT$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 SCgene <- intersect(FC_SCEC, FC_SCGB)
 SCgene <- intersect(SCgene, FC_SCEE)
 SCgene <- intersect(SCgene, FC_SCTA)
@@ -1038,9 +1042,7 @@ SCgene <- intersect(SCgene, FC_SCPNT)
 SCgene <- intersect(SCgene, FC_SCTFT)
 
 
-
-#----- SC Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellSC <- DATASbst[paste(SCgene),]
 
 CompSCmean <- All_mean[,-5]
@@ -1075,8 +1077,7 @@ CellSC$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                     rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- SC CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -1125,7 +1126,7 @@ write.csv(SCgenemedian, file = "SCmedian.csv")
 
 
 
-#----- PNT PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellSC$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                     rep("Endocrine Cells", ncol(EE_Sbst)*10),
                     rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -1181,7 +1182,6 @@ SC10med <- ggplot(CellSC)+
 print(SC10med)
 dev.off()
 
-library(ggpubr)
 png("SC.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(SC10mean, SC10med, ncol = 2)
 dev.off()
@@ -1189,13 +1189,11 @@ dev.off()
 
 
 #---------------------------------------
-#GB cell type specific Genes
+#Goblet Cells cell type specific Genes
 #--------------------------------------
 
 
-
-#----- GB Fold Change Computing -----
-
+#----- Merging dataframe of mean expression of GB with all the other cell types -----
 FC_GBEC <- cbind.data.frame(GB_mean, EC_mean)
 FC_GBEE <- cbind.data.frame(GB_mean, EE_mean)
 FC_GBTA<- cbind.data.frame(GB_mean, TA_mean)
@@ -1203,6 +1201,7 @@ FC_GBPNT <- cbind.data.frame(GB_mean, PNT_mean)
 FC_GBSC <- cbind.data.frame(GB_mean, SC_mean)
 FC_GBTFT <- cbind.data.frame(GB_mean, TFT_mean)
 
+#----- Calculate the fold change between Goblet cells and all the other cell types -----
 FC_GBEC <- transform(FC_GBEC, FoldChange=FC_GBEC[,1]/FC_GBEC[,2])
 FC_GBEE <- transform(FC_GBEE, FoldChange=FC_GBEE[,1]/FC_GBEE[,2])
 FC_GBTA <- transform(FC_GBTA, FoldChange=FC_GBTA[,1]/FC_GBTA[,2])
@@ -1210,6 +1209,7 @@ FC_GBPNT <- transform(FC_GBPNT, FoldChange=FC_GBPNT[,1]/FC_GBPNT[,2])
 FC_GBSC <- transform(FC_GBSC, FoldChange=FC_GBSC[,1]/FC_GBSC[,2])
 FC_GBTFT <- transform(FC_GBTFT, FoldChange=FC_GBTFT[,1]/FC_GBTFT[,2])
 
+#----- Log transform the data to have a better distribution of the results -----
 FC_GBEC$FoldChange <- log2(FC_GBEC$FoldChange)
 FC_GBEE$FoldChange <- log2(FC_GBEE$FoldChange)
 FC_GBTA$FoldChange <- log2(FC_GBTA$FoldChange)
@@ -1218,9 +1218,7 @@ FC_GBSC$FoldChange <- log2(FC_GBSC$FoldChange)
 FC_GBTFT$FoldChange <- log2(FC_GBTFT$FoldChange)
 
 
-
-#----- GB Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the Goblet cells -----
 FC_GBEC <- rownames(head(FC_GBEC[order(FC_GBEC$FoldChange, decreasing = TRUE),],300))
 FC_GBEE <- rownames(head(FC_GBEE[order(FC_GBEE$FoldChange, decreasing = TRUE),],300))
 FC_GBTA <- rownames(head(FC_GBTA[order(FC_GBTA$FoldChange, decreasing = TRUE),],300))
@@ -1228,6 +1226,8 @@ FC_GBPNT <- rownames(head(FC_GBPNT[order(FC_GBPNT$FoldChange, decreasing = TRUE)
 FC_GBSC <- rownames(head(FC_GBSC[order(FC_GBSC$FoldChange, decreasing = TRUE),],300))
 FC_GBTFT <- rownames(head(FC_GBTFT[order(FC_GBTFT$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 GBgene <- intersect(FC_GBEC, FC_GBSC)
 GBgene <- intersect(GBgene, FC_GBEE)
 GBgene <- intersect(GBgene, FC_GBTA)
@@ -1235,9 +1235,7 @@ GBgene <- intersect(GBgene, FC_GBPNT)
 GBgene <- intersect(GBgene, FC_GBTFT)
 
 
-
-#----- GB Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellGB <- DATASbst[paste(GBgene),]
 
 CompGBmean <- All_mean[,-6]
@@ -1271,8 +1269,7 @@ CellGB$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                     rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- GB CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -1321,8 +1318,7 @@ write.csv(GBgenemedian, file = "GBmedian.csv")
 
 
 
-#----- GB PLOTS -----
-
+#----- Create plots of the cell type specific genes -----
 CellGB$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                     rep("Endocrine Cells", ncol(EE_Sbst)*10),
                     rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -1378,22 +1374,17 @@ GB10med <- ggplot(CellGB)+
 print(GB10med)
 dev.off()
 
-library(ggpubr)
 png("GB.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(GB10mean, GB10med, ncol = 2)
 dev.off()
 
 
-
 #---------------------------------------
-#TFT cell type specific Genes
+#Tuft Cells cell type specific Genes
 #--------------------------------------
 
 
-
-#----- TFT Fold Change Computing -----
-
-
+#----- Merging dataframe of mean expression of TFT with all the other cell types -----
 FC_TFTEC <- cbind.data.frame(TFT_mean, EC_mean)
 FC_TFTEE <- cbind.data.frame(TFT_mean, EE_mean)
 FC_TFTTA<- cbind.data.frame(TFT_mean, TA_mean)
@@ -1401,6 +1392,8 @@ FC_TFTPNT <- cbind.data.frame(TFT_mean, PNT_mean)
 FC_TFTSC <- cbind.data.frame(TFT_mean, SC_mean)
 FC_TFTGB <- cbind.data.frame(TFT_mean, GB_mean)
 
+
+#----- Calculate the fold change between Tuft cells and all the other cell types -----
 FC_TFTEC <- transform(FC_TFTEC, FoldChange=FC_TFTEC[,1]/FC_TFTEC[,2])
 FC_TFTEE <- transform(FC_TFTEE, FoldChange=FC_TFTEE[,1]/FC_TFTEE[,2])
 FC_TFTTA <- transform(FC_TFTTA, FoldChange=FC_TFTTA[,1]/FC_TFTTA[,2])
@@ -1408,6 +1401,8 @@ FC_TFTPNT <- transform(FC_TFTPNT, FoldChange=FC_TFTPNT[,1]/FC_TFTPNT[,2])
 FC_TFTSC <- transform(FC_TFTSC, FoldChange=FC_TFTSC[,1]/FC_TFTSC[,2])
 FC_TFTGB <- transform(FC_TFTGB, FoldChange=FC_TFTGB[,1]/FC_TFTGB[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_TFTEC$FoldChange <- log2(FC_TFTEC$FoldChange)
 FC_TFTEE$FoldChange <- log2(FC_TFTEE$FoldChange)
 FC_TFTTA$FoldChange <- log2(FC_TFTTA$FoldChange)
@@ -1416,9 +1411,7 @@ FC_TFTSC$FoldChange <- log2(FC_TFTSC$FoldChange)
 FC_TFTGB$FoldChange <- log2(FC_TFTGB$FoldChange)
 
 
-
-#----- TFT Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the Tuft cells -----
 FC_TFTEC <- rownames(head(FC_TFTEC[order(FC_TFTEC$FoldChange, decreasing = TRUE),],300))
 FC_TFTEE <- rownames(head(FC_TFTEE[order(FC_TFTEE$FoldChange, decreasing = TRUE),],300))
 FC_TFTTA <- rownames(head(FC_TFTTA[order(FC_TFTTA$FoldChange, decreasing = TRUE),],300))
@@ -1426,6 +1419,8 @@ FC_TFTPNT <- rownames(head(FC_TFTPNT[order(FC_TFTPNT$FoldChange, decreasing = TR
 FC_TFTSC <- rownames(head(FC_TFTSC[order(FC_TFTSC$FoldChange, decreasing = TRUE),],300))
 FC_TFTGB <- rownames(head(FC_TFTGB[order(FC_TFTGB$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
 TFTgene <- intersect(FC_TFTEC, FC_TFTSC)
 TFTgene <- intersect(TFTgene, FC_TFTEE)
 TFTgene <- intersect(TFTgene, FC_TFTTA)
@@ -1433,9 +1428,7 @@ TFTgene <- intersect(TFTgene, FC_TFTPNT)
 TFTgene <- intersect(TFTgene, FC_TFTGB)
 
 
-
-#----- TFT Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellTFT <- DATASbst[paste(TFTgene),]
 
 CompTFTmean <- All_mean[,-7]
@@ -1469,8 +1462,7 @@ CellTFT$variable<- c(rep("EC", ncol(EC_Sbst)*10),
                      rep("TFT",ncol(TFT_Sbst)*10))
 
 
-#----- TFT CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -1518,8 +1510,7 @@ colnames(TFTgenemedian) <- c("Gene","EC","EE","PNT","TA","SC","GB","TFT")
 write.csv(TFTgenemedian, file = "TFTmedian.csv")
 
 
-
-#----- TFT PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellTFT$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*10),
                      rep("Endocrine Cells", ncol(EE_Sbst)*10),
                      rep("Paneth Cells", ncol(PNT_Sbst)*10),
@@ -1575,21 +1566,17 @@ TFT10med <- ggplot(CellTFT)+
 print(TFT10med)
 dev.off()
 
-library(ggpubr)
 png("TFT.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(TFT10mean, TFT10med, ncol = 2)
 dev.off()
 
 
 #---------------------------------------
-#TA cell type specific Genes
+#Transient Amplifying Cells cell type specific Genes
 #--------------------------------------
 
 
-
-#----- TA Fold Change Computing -----
-
-
+#----- Merging dataframe of mean expression of TA with all the other cell types -----
 FC_TAEC <- cbind.data.frame(TA_mean, EC_mean)
 FC_TAEE <- cbind.data.frame(TA_mean, EE_mean)
 FC_TATFT<- cbind.data.frame(TA_mean, TFT_mean)
@@ -1597,6 +1584,8 @@ FC_TAPNT <- cbind.data.frame(TA_mean, PNT_mean)
 FC_TASC <- cbind.data.frame(TA_mean, SC_mean)
 FC_TAGB <- cbind.data.frame(TA_mean, GB_mean)
 
+
+#----- Calculate the fold change between Goblet cells and all the other cell types -----
 FC_TAEC <- transform(FC_TAEC, FoldChange=FC_TAEC[,1]/FC_TAEC[,2])
 FC_TAEE <- transform(FC_TAEE, FoldChange=FC_TAEE[,1]/FC_TAEE[,2])
 FC_TATFT <- transform(FC_TATFT, FoldChange=FC_TATFT[,1]/FC_TATFT[,2])
@@ -1604,6 +1593,8 @@ FC_TAPNT <- transform(FC_TAPNT, FoldChange=FC_TAPNT[,1]/FC_TAPNT[,2])
 FC_TASC <- transform(FC_TASC, FoldChange=FC_TASC[,1]/FC_TASC[,2])
 FC_TAGB <- transform(FC_TAGB, FoldChange=FC_TAGB[,1]/FC_TAGB[,2])
 
+
+#----- Log transform the data to have a better distribution of the results -----
 FC_TAEC$FoldChange <- log2(FC_TAEC$FoldChange)
 FC_TAEE$FoldChange <- log2(FC_TAEE$FoldChange)
 FC_TATFT$FoldChange <- log2(FC_TATFT$FoldChange)
@@ -1612,9 +1603,7 @@ FC_TASC$FoldChange <- log2(FC_TASC$FoldChange)
 FC_TAGB$FoldChange <- log2(FC_TAGB$FoldChange)
 
 
-
-#----- TA Intersection -----
-
+#----- Extract the 300 genes with the highest fold change in each fold change analysis for the TA cells -----
 FC_TAEC <- rownames(head(FC_TAEC[order(FC_TAEC$FoldChange, decreasing = TRUE),],300))
 FC_TAEE <- rownames(head(FC_TAEE[order(FC_TAEE$FoldChange, decreasing = TRUE),],300))
 FC_TATFT <- rownames(head(FC_TATFT[order(FC_TATFT$FoldChange, decreasing = TRUE),],300))
@@ -1622,15 +1611,17 @@ FC_TAPNT <- rownames(head(FC_TAPNT[order(FC_TAPNT$FoldChange, decreasing = TRUE)
 FC_TASC <- rownames(head(FC_TASC[order(FC_TASC$FoldChange, decreasing = TRUE),],300))
 FC_TAGB <- rownames(head(FC_TAGB[order(FC_TAGB$FoldChange, decreasing = TRUE),],300))
 
+
+#----- Extract the genes found in each analysis -----
+# We forgot the stem cells, thus, genes expressed in TA cells and Stem cells are kept. We do this because there isn't any gene specific to TA
 TAgene <- intersect(FC_TAEE, FC_TAEC)
 TAgene <- intersect(TAgene, FC_TAGB)
 TAgene <- intersect(TAgene, FC_TATFT)
 TAgene <- intersect(TAgene, FC_TAPNT)
+#To find genes expressed in TA and another cell type, delete the line with the cell type.
 
 
-
-#----- TA Extraction -----
-
+#----- Extract in the original dataframe with expression data the precedent extracted genes -----
 CellTA <- DATASbst[paste(TAgene),]
 
 CompTAmean <- All_mean[,-4]
@@ -1665,8 +1656,7 @@ CellTA$variable<- c(rep("EC", ncol(EC_Sbst)*6),
                       rep("TFT",ncol(TFT_Sbst)*6))
 
 
-#----- TA CSV -----
-
+#----- Extract the mean value of the expression of each extracted genes in each cell type -----
 AB <- data.frame(NULL)
 AC <- data.frame(NULL)
 AD <- data.frame(NULL)
@@ -1714,8 +1704,7 @@ colnames(TAgenemedian) <- c("Gene","EC","EE","PNT","TA","SC","GB","TFT")
 write.csv(TAgenemedian, file = "TAmedian.csv")
 
 
-
-#----- TA PLOTS -----
+#----- Create plots of the cell type specific genes -----
 CellTA$variable<- c(rep("Enterocytes", ncol(EC_Sbst)*6),
                       rep("Endocrine Cells", ncol(EE_Sbst)*6),
                       rep("Paneth Cells", ncol(PNT_Sbst)*6),
@@ -1771,7 +1760,6 @@ TA10med <- ggplot(CellTA)+
 print(TA10med)
 dev.off()
 
-library(ggpubr)
 png("TA.png", width = 9000, height = 9000, units = "px", res = 500)
 ggarrange(TA10mean, TA10med, ncol = 2)
 dev.off()
